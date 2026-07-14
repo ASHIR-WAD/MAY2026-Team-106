@@ -1,0 +1,162 @@
+the following code should be pasted in an empty App.tsx file and 'npm run dev' be used to start the server...
+
+
+
+import * as React from 'react'
+import { Button } from './components/ui/Button'
+import { Input } from './components/ui/Input'
+import { Modal } from './components/ui/Modal'
+import { QuantityStepper } from './components/ui/QuantityStepper'
+import { StarRating } from './components/ui/StarRating'
+
+export default function App() {
+  // 1. QuantityStepper memory container bounds (Min 0, Max 5)
+  const [stepperVal, setStepperVal] = React.useState(2)
+
+  // 2. StarRating memory state tracking container
+  const [ratingVal, setRatingVal] = React.useState(3)
+
+  // 3. Modal viewport visibility backdrop logic flag toggle
+  const [isModalOpen, setIsModalOpen] = React.useState(false)
+
+  return (
+    <div className="min-h-screen bg-bg text-text-primary p-8 max-w-4xl mx-auto space-y-12 select-none">
+      {/* Framework Header Section */}
+      <div className="border-b border-border pb-4">
+        <h1 className="text-3xl font-bold tracking-tight text-accent">
+          Interactive UI Test Dashboard
+        </h1>
+        <p className="text-text-secondary text-sm">
+          Isolate components to verify interactive bounds, focus states, and tokens.
+        </p>
+      </div>
+
+      {/* 1. Button Testing Suite Block */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b border-border/40 pb-2">
+          1. Button Variants & Size Configurations
+        </h2>
+        <div className="flex flex-wrap items-center gap-4">
+          <Button variant="primary" size="md">
+            Primary Md
+          </Button>
+          <Button variant="secondary" size="md">
+            Secondary Md
+          </Button>
+          <Button variant="ghost" size="md">
+            Ghost Md
+          </Button>
+          <Button variant="primary" size="sm">
+            Primary Sm
+          </Button>
+          <Button variant="primary" size="md" isLoading>
+            Processing Request
+          </Button>
+        </div>
+      </section>
+
+      {/* 2. Text Inputs Framework Block */}
+      <section className="space-y-4 max-w-md">
+        <h2 className="text-xl font-semibold border-b border-border/40 pb-2">
+          2. Accessible Form Inputs
+        </h2>
+        <Input
+          label="Standard Email Input Layout"
+          placeholder="name@domain.com"
+          type="email"
+        />
+        <Input
+          label="Secure Password Input Field"
+          placeholder="••••••••"
+          type="password"
+        />
+        <Input
+          label="Erroneous Field Validation State"
+          defaultValue="invalid structure input metadata"
+          error="Field format configuration verification match failed."
+        />
+      </section>
+
+      {/* 3. Stateless Steppers Context Verification Block */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b border-border/40 pb-2">
+          3. Stateless Stepper (Constrained Limits: Min 0, Max 5)
+        </h2>
+        <div className="space-y-2">
+          <QuantityStepper
+            value={stepperVal}
+            onChange={setStepperVal}
+            min={0}
+            max={5}
+          />
+          <p className="text-xs text-text-secondary">
+            Parent Component App.tsx Memory Register Value:{' '}
+            <span className="text-accent font-bold font-mono">{stepperVal}</span>
+          </p>
+        </div>
+      </section>
+
+      {/* 4. Graphical Interactive Ratings Section */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b border-border/40 pb-2">
+          4. Performance Feedback Star Ratings
+        </h2>
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-text-secondary mb-1">
+              Active Form Input Mode (Click 4th Star to Verify Toggle):
+            </p>
+            <StarRating
+              mode="input"
+              rating={ratingVal}
+              onChange={setRatingVal}
+            />
+          </div>
+          <div>
+            <p className="text-sm text-text-secondary mb-1">
+              Static Read-Only View Mode (Clamped at 4, Interactions Suppressed):
+            </p>
+            <StarRating mode="read" rating={4} />
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Accessible Context Portal Dialog Overlay Module */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b border-border/40 pb-2">
+          5. Frame Dialog Overlays
+        </h2>
+        <Button onClick={() => setIsModalOpen(true)}>
+          Launch Modal Overlay Frame
+        </Button>
+
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-text-primary">
+              Focus Containment Sandbox
+            </h3>
+            <p className="text-sm text-text-secondary">
+              Focus lock is active inside this frame container boundary. Use Tab
+              or Shift+Tab to verify wrap-around bounds. Pressing Escape drops the layer.
+            </p>
+            <Input
+              label="Contained Input Element"
+              placeholder="Captured within frame view bounds..."
+            />
+            <div className="flex gap-2 justify-end pt-2">
+              <Button
+                variant="secondary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={() => setIsModalOpen(false)}>
+                Confirm Action
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      </section>
+    </div>
+  )
+}

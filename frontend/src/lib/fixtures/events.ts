@@ -1,11 +1,12 @@
-import type { Event } from '../../types/event'
+import type { Events } from '../../types/events'
 
-export const eventsFixture: Event[] = [
+export const eventsFixture: Events[] = [
   {
     id: 1,
-    organiser_id: 2,
+    organiser_id: [2],
     title: 'Tech Meetup: Building with TypeScript',
-    description: 'An evening of talks and networking for TypeScript developers.',
+    description:
+      'An evening of talks and networking for TypeScript developers.',
     imp_info: ['Bring your laptop', 'Snacks provided'],
     venue: 'IIT Madras Research Park, Chennai',
     capacity_limit: 120,
@@ -22,7 +23,7 @@ export const eventsFixture: Event[] = [
   },
   {
     id: 2,
-    organiser_id: 2,
+    organiser_id: [2],
     title: 'Startup Pitch Night',
     description: 'Local founders pitch to mentors and early-stage investors.',
     imp_info: ['Business casual', 'RSVP required'],
@@ -41,7 +42,7 @@ export const eventsFixture: Event[] = [
   },
   {
     id: 3,
-    organiser_id: 3,
+    organiser_id: [3],
     title: 'Campus Music Festival',
     description: 'Outdoor performances from student bands and guest artists.',
     imp_info: ['Outdoor event', 'No outside food'],

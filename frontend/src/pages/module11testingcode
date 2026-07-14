@@ -1,0 +1,131 @@
+the following code should be pasted in an empty App.tsx file and 'npm run dev' be used to start the server...
+
+
+import * as React from 'react'
+import { EventCard } from './components/event/EventCard'
+import { OrganiserChip } from './components/event/OrganiserChip'
+import { EventGallery } from './components/event/EventGallery'
+import type { MediaItem } from './components/event/EventGallery'
+import { Button } from './components/ui/Button'
+
+// 1. Importing your exact fixtures using their correct names
+import { eventsFixture } from './lib/fixtures/events'
+import { usersFixture } from './lib/fixtures/users'
+
+// 2. Type-safe fallback media simulation matching Table media_gallery 1:1
+const simulatedMediaGallery: MediaItem[] = [
+  { id: 1, event_id: 1, image_url: 'https://picsum.photos' },
+  { id: 2, event_id: 1, image_url: 'https://picsum.photos' },
+  { id: 3, event_id: 2, image_url: 'https://picsum.photos' },
+  // Event ID 3 is left empty to test the "No photos yet" empty-state UI boundary rule
+]
+
+const formatDate = (dateStr: string) => {
+  try {
+    const d = new Date(dateStr)
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).toUpperCase()
+  } catch {
+    return dateStr
+  }
+}
+
+export default function App() {
+  const [bookmarks, setBookmarks] = React.useState<Record<number, boolean>>({})
+  const [followingMap, setFollowingMap] = React.useState<Record<number, boolean>>({})
+  const [activeEventId, setActiveEventId] = React.useState<number>(1)
+
+  const toggleBookmark = (id: number) => {
+    setBookmarks((prev) => ({ ...prev, [id]: !prev[id] }))
+  }
+
+  const toggleFollow = (userId: number) => {
+    setFollowingMap((prev) => ({ ...prev, [userId]: !prev[userId] }))
+  }
+
+  return (
+    <div className="min-h-screen bg-bg text-text-primary p-8 max-w-5xl mx-auto space-y-12 select-none">
+      {/* Header Block */}
+      <div className="border-b border-border pb-4">
+        <h1 className="text-3xl font-bold tracking-tight text-accent">Gatherly Relational Sandbox</h1>
+        <p className="text-text-secondary text-sm">
+          Simulating real database joins by linking primary keys with local array fixtures.
+        </p>
+      </div>
+
+      {/* Grid Displaying Event Cards Joined with Their Relational Organizers */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold border-b border-border/40 pb-2">
+          Live Events Feed (Click a card to filter the media gallery matrix below)
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {eventsFixture.map((event) => {
+            // Safe array boundary check to parse out your database integer[] array references
+            const firstOrgId = event.organiser_id && event.organiser_id.length > 0 ? event.organiser_id[0] : null
+            
+            // Querying your live user dataset matching the calculated ID reference
+            const associatedOrganizer = usersFixture.find(
+              (u) => u.user_id === firstOrgId
+            )
+
+            return (
+              <div key={event.id} className="flex flex-col bg-surface/40 rounded-xl p-3 border border-border/60 space-y-3">
+                <div className="flex-grow">
+                  <EventCard
+                    id={event.id}
+                    title={event.title}
+                    bannerUrl={event.banner_url || undefined}
+                    dateString={formatDate(event.start_time)}
+                    locationString={event.venue}
+                    isBookmarked={!!bookmarks[event.id]}
+                    onBookmarkToggle={() => toggleBookmark(event.id)}
+                    onNavigate={(id) => setActiveEventId(Number(id))}
+                  />
+                </div>
+
+                {associatedOrganizer ? (
+                  <div className="pt-1">
+                    <OrganiserChip
+                      name={associatedOrganizer.name}
+                      pfpUrl={associatedOrganizer.pfp_url || undefined}
+                      actionSlot={
+                        <Button
+                          variant={followingMap[associatedOrganizer.user_id] ? 'secondary' : 'primary'}
+                          size="sm"
+                          onClick={() => toggleFollow(associatedOrganizer.user_id)}
+                          className="!h-7 text-xs"
+                        >
+                          {followingMap[associatedOrganizer.user_id] ? 'Following' : 'Follow'}
+                        </Button>
+                      }
+                    />
+                  </div>
+                ) : (
+                  <p className="text-xs text-text-secondary/50 px-2">Organizer record unavailable</p>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Reactive Image Gallery Block */}
+      <section className="bg-surface/20 border border-border p-6 rounded-xl space-y-4">
+        <div>
+          <h2 className="text-lg font-bold text-accent">Dynamic Media Feed Matrix</h2>
+          <p className="text-xs text-text-secondary">
+            Displaying assets matched against active target container node ID:{' '}
+            <span className="text-text-primary font-mono font-bold bg-surface-alt px-1.5 py-0.5 rounded border border-border">
+              {activeEventId}
+            </span>
+          </p>
+        </div>
+
+        <EventGallery eventId={activeEventId} galleryItems={simulatedMediaGallery} />
+      </section>
+    </div>
+  )
+}

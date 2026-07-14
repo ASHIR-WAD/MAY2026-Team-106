@@ -1,6 +1,6 @@
-import type { User } from '../../types/user'
+import type { Users } from '../../types/users'
 
-export const usersFixture: User[] = [
+export const usersFixture: Users[] = [
   {
     user_id: 1,
     email: 'attendee@example.com',
@@ -13,6 +13,7 @@ export const usersFixture: User[] = [
     pfp_url: null,
     dob: '2000-04-12',
     description: null,
+    bookmarks: [],
   },
   {
     user_id: 2,
@@ -26,6 +27,7 @@ export const usersFixture: User[] = [
     pfp_url: null,
     dob: null,
     description: 'Community events organiser',
+    bookmarks: [],
   },
   {
     user_id: 3,
@@ -39,5 +41,6 @@ export const usersFixture: User[] = [
     pfp_url: null,
     dob: null,
     description: null,
+    bookmarks: [],
   },
 ]

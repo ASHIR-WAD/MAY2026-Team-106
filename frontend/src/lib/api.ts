@@ -64,10 +64,7 @@ async function mockPost<T>(path: string, body: unknown): Promise<T> {
   return handler(body) as T
 }
 
-async function realRequest<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
+async function realRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const base = apiBaseUrl().replace(/\/$/, '')
   const normalized = normalizePath(path)
   const url = `${base}${normalized}`
