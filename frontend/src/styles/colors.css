@@ -1,0 +1,18 @@
+:root {
+  /* Backgrounds */
+  --color-bg: 14 14 16;
+  --color-surface: 24 24 27;
+  --color-surface-alt: 35 35 38;
+
+  /* Borders */
+  --color-border: 46 46 51;
+
+  /* Text */
+  --color-text-primary: 244 244 245;
+  --color-text-secondary: 161 161 170;
+
+  /* Semantic accents */
+  --color-accent: 59 130 246;
+  --color-danger: 239 68 68;
+  --color-success: 34 197 94;
+}

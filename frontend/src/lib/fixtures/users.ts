@@ -1,0 +1,43 @@
+import type { User } from '../../types/user'
+
+export const usersFixture: User[] = [
+  {
+    user_id: 1,
+    email: 'attendee@example.com',
+    password_hash: 'hashed',
+    role: 'ATTENDEE',
+    name: 'Asha Patel',
+    phone: null,
+    created_at: '2026-05-01T10:00:00.000Z',
+    status: 'ACTIVE',
+    pfp_url: null,
+    dob: '2000-04-12',
+    description: null,
+  },
+  {
+    user_id: 2,
+    email: 'organiser@example.com',
+    password_hash: 'hashed',
+    role: 'ORGANISER',
+    name: 'Rahul Mehta',
+    phone: '+91-9000000001',
+    created_at: '2026-04-15T10:00:00.000Z',
+    status: 'ACTIVE',
+    pfp_url: null,
+    dob: null,
+    description: 'Community events organiser',
+  },
+  {
+    user_id: 3,
+    email: 'admin@example.com',
+    password_hash: 'hashed',
+    role: 'ADMIN',
+    name: 'Platform Admin',
+    phone: null,
+    created_at: '2026-01-01T00:00:00.000Z',
+    status: 'ACTIVE',
+    pfp_url: null,
+    dob: null,
+    description: null,
+  },
+]
