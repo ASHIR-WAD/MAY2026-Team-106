@@ -1,5 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
-import { RequireAuth } from './RequireAuth'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { AuthenticatedShell } from '../components/layout/AuthenticatedShell'
 import { HomePage } from '../pages/HomePage'
 import { EventDetailPage } from '../pages/EventDetailPage'
 import { OrganiserProfilePage } from '../pages/OrganiserProfilePage'
@@ -7,50 +7,50 @@ import { BookingsPage } from '../pages/BookingsPage'
 import { FavouritesPage } from '../pages/FavouritesPage'
 import { ProfileUpdatePage } from '../pages/ProfileUpdatePage'
 import { EventBookPage } from '../pages/EventBookPage'
+import { NotificationsPage } from '../pages/NotificationsPage'
 import Login from '../pages/Login'
+import Signup from '../pages/Signup'
+
+import { OrganiserHome } from '../pages/OrganiserHome'
+import { OrganiserAnalytics } from '../pages/OrganiserAnalytics'
+import { OrganiserEvents } from '../pages/OrganiserEvents'
+
+import { AdminHome } from '../pages/AdminHome'
+import { AdminVerification } from '../pages/AdminVerification'
+import { AdminReports } from '../pages/AdminReports'
 
 export function AppRoutes() {
   return (
     <Routes>
-      {/* Public */}
-      <Route path="/" element={<HomePage />} />
-      <Route path="/event/:eventId" element={<EventDetailPage />} />
-      <Route path="/organiser/:organiserId" element={<OrganiserProfilePage />} />
+      {/* Public / Auth */}
       <Route path="/auth/login" element={<Login />} />
+      <Route path="/auth/signup" element={<Signup />} />
 
-      {/* Protected */}
-      <Route
-        path="/user/bookings"
-        element={
-          <RequireAuth>
-            <BookingsPage />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/user/favourites"
-        element={
-          <RequireAuth>
-            <FavouritesPage />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/user/update"
-        element={
-          <RequireAuth>
-            <ProfileUpdatePage />
-          </RequireAuth>
-        }
-      />
-      <Route
-        path="/event/:eventId/book"
-        element={
-          <RequireAuth>
-            <EventBookPage />
-          </RequireAuth>
-        }
-      />
+      {/* Protected Routes Layout */}
+      <Route element={<AuthenticatedShell />}>
+        {/* Attendee Routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/event/:eventId" element={<EventDetailPage />} />
+        <Route path="/organiser/:organiserId" element={<OrganiserProfilePage />} />
+        <Route path="/user/bookings" element={<BookingsPage />} />
+        <Route path="/user/favourites" element={<FavouritesPage />} />
+        <Route path="/user/update" element={<ProfileUpdatePage />} />
+        <Route path="/event/:eventId/book" element={<EventBookPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+
+        {/* Organiser Routes */}
+        <Route path="/org" element={<OrganiserHome />} />
+        <Route path="/org/analytics" element={<OrganiserAnalytics />} />
+        <Route path="/org/events" element={<OrganiserEvents />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminHome />} />
+        <Route path="/admin/verification" element={<AdminVerification />} />
+        <Route path="/admin/reports" element={<AdminReports />} />
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
