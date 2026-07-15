@@ -8,10 +8,7 @@ export const mockGetRoutes: Record<string, unknown> = {
 }
 
 /** In-memory POST path → fixture response factory. */
-export const mockPostRoutes: Record<
-  string,
-  (body: unknown) => unknown
-> = {
+export const mockPostRoutes: Record<string, (body: unknown) => unknown> = {
   '/events': (body) => ({
     id: eventsFixture.length + 1,
     ...(typeof body === 'object' && body !== null ? body : {}),
