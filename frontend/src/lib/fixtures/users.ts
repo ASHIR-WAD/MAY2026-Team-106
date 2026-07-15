@@ -14,6 +14,7 @@ export const usersFixture: Users[] = [
     dob: '1998-03-14',
     description: null,
     bookmarks: [],
+    docs: null,
   },
   {
     // Rhea: fresh account, onboarding skipped, no activity yet
@@ -29,6 +30,7 @@ export const usersFixture: Users[] = [
     dob: '2001-11-02',
     description: null,
     bookmarks: [],
+    docs: null,
   },
   {
     user_id: 3,
@@ -43,6 +45,7 @@ export const usersFixture: Users[] = [
     dob: null,
     description: 'We run live music and nightlife experiences across Gurugram.',
     bookmarks: [],
+    docs: null,
   },
   {
     user_id: 4,
@@ -57,6 +60,7 @@ export const usersFixture: Users[] = [
     dob: null,
     description: 'Community running events, marathons, and fitness meetups.',
     bookmarks: [],
+    docs: null,
   },
   {
     // pending approval — should not be bookable/visible in public listings yet
@@ -72,6 +76,7 @@ export const usersFixture: Users[] = [
     dob: null,
     description: 'Stand-up comedy nights, new and touring acts.',
     bookmarks: [],
+    docs: null,
   },
   {
     // admin — no meaningful profile fields beyond role
@@ -87,5 +92,6 @@ export const usersFixture: Users[] = [
     dob: null,
     description: null,
     bookmarks: [],
+    docs: null,
   },
 ]

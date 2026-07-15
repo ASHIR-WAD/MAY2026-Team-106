@@ -19,6 +19,9 @@ import { AdminHome } from '../pages/AdminHome'
 import { AdminVerification } from '../pages/AdminVerification'
 import { AdminReports } from '../pages/AdminReports'
 
+import { OnboardingStep1 } from '../pages/OnboardingStep1'
+import { OnboardingStep2 } from '../pages/OnboardingStep2'
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -37,6 +40,8 @@ export function AppRoutes() {
         <Route path="/user/update" element={<ProfileUpdatePage />} />
         <Route path="/event/:eventId/book" element={<EventBookPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/user/onboarding/step1" element={<OnboardingStep1 />} />
+        <Route path="/user/onboarding/step2" element={<OnboardingStep2 />} />
 
         {/* Organiser Routes */}
         <Route path="/org" element={<OrganiserHome />} />
