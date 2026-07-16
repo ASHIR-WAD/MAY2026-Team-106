@@ -13,11 +13,15 @@ export function HomePage() {
 
   // Filter events based on search query
   const filteredEvents = eventsFixture.filter((event) => {
-    if (!filterQuery) return event.status === 'ACTIVE'
+    if (event.status !== 'ACTIVE') return false
+    if (!filterQuery) return true
+    const q = filterQuery.trim().toLowerCase()
+    if (!q) return true
     return (
-      event.status === 'ACTIVE' &&
-      event.venue.toLowerCase().includes(filterQuery.toLowerCase())
-    );
+      event.title.toLowerCase().includes(q) ||
+      event.venue.toLowerCase().includes(q) ||
+      event.description.toLowerCase().includes(q)
+    )
   })
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
