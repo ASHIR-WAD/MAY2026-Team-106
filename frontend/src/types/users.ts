@@ -15,4 +15,5 @@ export interface Users {
   description: string | null
 
   bookmarks: number[]
+  docs: string | null
 }
