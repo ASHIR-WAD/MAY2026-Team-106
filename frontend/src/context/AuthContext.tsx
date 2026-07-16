@@ -145,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       dob: created.dob ?? null,
       description: created.description ?? null,
       bookmarks: created.bookmarks ?? [],
+      docs: created.docs ?? null,
     }
 
     return newUser
@@ -156,9 +157,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearStoredSession()
   }, [])
 
+  const updateProfile = useCallback((updates: Partial<Users>) => {
+    setUser((prev) => {
+      if (!prev) return null
+      const updated = { ...prev, ...updates }
+      persistSession(updated, token)
+      return updated
+    })
+  }, [token])
+
   const value = useMemo<AuthContextValue>(
-    () => ({ user, token, isInitializing, login, logout, signup }),
-    [user, token, isInitializing, login, logout, signup],
+    () => ({ user, token, isInitializing, login, logout, signup, updateProfile }),
+    [user, token, isInitializing, login, logout, signup, updateProfile],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

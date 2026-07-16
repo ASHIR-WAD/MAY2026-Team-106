@@ -37,6 +37,39 @@ export const mockPostRoutes: Record<string, (body: unknown) => unknown> = {
     id: eventsFixture.length + 1,
     ...(typeof body === 'object' && body !== null ? body : {}),
   }),
+  '/users': (body) => {
+    const payload =
+      typeof body === 'object' && body !== null
+        ? (body as {
+            email?: string
+            role?: string
+            name?: string
+            phone?: string
+            password?: string
+          })
+        : {}
+    const newUser = {
+      user_id: usersFixture.length + 1,
+      email: payload.email || '',
+      role: (payload.role === 'ORGANISER'
+        ? 'ORGANISER'
+        : payload.role === 'ADMIN'
+          ? 'ADMIN'
+          : 'ATTENDEE') as 'ATTENDEE' | 'ORGANISER' | 'ADMIN',
+      name: payload.name || '',
+      phone: payload.phone || '',
+      password_hash: payload.password ? `$2b$mock-${payload.password}` : '$2b$mock-password',
+      created_at: new Date().toISOString(),
+      status: 'ACTIVE' as const,
+      pfp_url: null,
+      dob: null,
+      description: null,
+      bookmarks: [],
+      docs: null,
+    }
+    usersFixture.push(newUser)
+    return newUser
+  },
 }
 
 export {
