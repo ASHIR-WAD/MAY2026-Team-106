@@ -1,14 +1,13 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../context'
 import { NavTabs } from './NavTabs'
 import { ThemeToggle } from './ThemeToggle'
 import { AvatarMenu } from './AvatarMenu'
-import { notificationRecipientsFixture } from '../../lib/fixtures'
+import { NotificationDropdown } from './NotificationDropdown'
 
 export function Navbar() {
   const { user } = useAuth()
-  const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const homeRoute =
@@ -19,13 +18,6 @@ export function Navbar() {
           ? '/org'
           : '/'
       : '/'
-
-  // Calculate unread count to show/hide the red dot on the bell icon
-  const unreadCount = user
-    ? notificationRecipientsFixture.filter(
-        (r) => r.recipient_id === user.user_id && !r.read_at
-      ).length
-    : 0
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-surface/65 backdrop-blur-xl transition-all duration-300 shadow-[0_2px_20px_rgba(0,0,0,0.03)] dark:shadow-[0_2px_20px_rgba(0,0,0,0.15)] border-b border-white/[0.04] dark:border-white/[0.01]">
@@ -57,36 +49,8 @@ export function Navbar() {
 
             {user ? (
               <>
-                {/* Bell Icon - Only show if not ADMIN. Clicking redirects directly to notifications page */}
-                {user.role !== 'ADMIN' && (
-                  <div>
-                    <button
-                      onClick={() => navigate('/notifications')}
-                      type="button"
-                      className="relative p-2 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-alt transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent"
-                      aria-label="Go to notifications page"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-                        />
-                      </svg>
-                      {/* Red dot indicator */}
-                      {unreadCount > 0 && (
-                        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-danger ring-2 ring-surface" />
-                      )}
-                    </button>
-                  </div>
-                )}
+                {/* Bell Icon with badge + dropdown (Module 6) — only for non-admins */}
+                {user.role !== 'ADMIN' && <NotificationDropdown />}
 
                 {/* Avatar Dropdown */}
                 <AvatarMenu />
