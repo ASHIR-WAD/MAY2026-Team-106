@@ -70,6 +70,13 @@ export const mockPostRoutes: Record<string, (body: unknown) => unknown> = {
     usersFixture.push(newUser)
     return newUser
   },
+  '/users/me/bookmarks': (body) => {
+    // Bookmark persistence is handled optimistically in the client via
+    // updateProfile() — the local React state and localStorage are the
+    // source of truth. This mock just acknowledges the request so the
+    // catch block in useBookmark doesn't roll the UI back.
+    return { ok: true, ...(typeof body === 'object' && body !== null ? body : {}) }
+  },
 }
 
 export {
