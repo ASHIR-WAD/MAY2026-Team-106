@@ -1,17 +1,15 @@
 import { useState } from 'react'
-import { useAuth } from '../context'
-import { notificationsFixture, notificationRecipientsFixture } from '../lib/fixtures'
+import { useAuth, useNotifications } from '../context'
+import { notificationsFixture } from '../lib/fixtures'
 
 export function NotificationsPage() {
   const { user } = useAuth()
-  const [recipients, setRecipients] = useState(notificationRecipientsFixture)
+  const { userRecipients, dismiss } = useNotifications()
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
 
   if (!user) return null
 
-  // Filter recipient mappings for the current user
-  const userRecipients = recipients.filter((r) => r.recipient_id === user.user_id)
-
+  // All rows for this user, joined to the notification payload.
   const notifications = userRecipients
     .map((r) => {
       const detail = notificationsFixture.find((n) => n.id === r.notification_id)
@@ -26,32 +24,17 @@ export function NotificationsPage() {
     .filter((n) => (filter === 'unread' ? !n.read_at : true))
     .sort((a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime())
 
+  // Read-and-hide: clicking marks the row as both read and hidden in
+  // a single update. This is the same one-shot action the bell uses,
+  // just invoked from the full page.
   const markAsRead = (notificationId: number) => {
-    setRecipients((prev) =>
-      prev.map((r) =>
-        r.notification_id === notificationId && r.recipient_id === user.user_id
-          ? {
-              ...r,
-              read_at: new Date().toISOString(),
-              hide_at: new Date().toISOString(),
-            }
-          : r
-      )
-    )
+    dismiss(notificationId)
   }
 
   const markAllAsRead = () => {
-    setRecipients((prev) =>
-      prev.map((r) =>
-        r.recipient_id === user.user_id
-          ? {
-              ...r,
-              read_at: r.read_at || new Date().toISOString(),
-              hide_at: r.hide_at || new Date().toISOString(),
-            }
-          : r
-      )
-    )
+    userRecipients
+      .filter((r) => !r.read_at)
+      .forEach((r) => dismiss(r.notification_id))
   }
 
   const getBroadcastTypeBadge = (type: string) => {
