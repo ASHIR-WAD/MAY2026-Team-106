@@ -13,7 +13,8 @@ import Signup from '../pages/Signup'
 
 import { OrganiserHomePage } from '../pages/org/OrganiserHomePage'
 import { OrganiserAnalytics } from '../pages/OrganiserAnalytics'
-import { OrganiserEvents } from '../pages/OrganiserEvents'
+import { YourEventsPage } from '../pages/org/YourEventsPage'
+import { OrganiserEventEditPage } from '../pages/org/OrganiserEventEditPage'
 
 import { AdminHome } from '../pages/AdminHome'
 import { AdminVerification } from '../pages/AdminVerification'
@@ -46,7 +47,8 @@ export function AppRoutes() {
         {/* Organiser Routes */}
         <Route path="/org" element={<OrganiserHomePage />} />
         <Route path="/org/analytics" element={<OrganiserAnalytics />} />
-        <Route path="/org/events" element={<OrganiserEvents />} />
+        <Route path="/org/events" element={<YourEventsPage />} />
+        <Route path="/org/events/:eventId/edit" element={<OrganiserEventEditPage />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminHome />} />
