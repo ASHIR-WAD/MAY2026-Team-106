@@ -20,7 +20,7 @@ export function HomePage() {
     return (
       event.title.toLowerCase().includes(q) ||
       event.venue.toLowerCase().includes(q) ||
-      event.description.toLowerCase().includes(q)
+      (event.description ?? "").toLowerCase().includes(q)
     )
   })
 
