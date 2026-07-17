@@ -14,7 +14,7 @@ import Signup from '../pages/Signup'
 import { OrganiserHomePage } from '../pages/org/OrganiserHomePage'
 import { OrganiserAnalytics } from '../pages/OrganiserAnalytics'
 import { YourEventsPage } from '../pages/org/YourEventsPage'
-import { OrganiserEventEditPage } from '../pages/org/OrganiserEventEditPage'
+import { EventFormPage } from '../pages/org/EventFormPage'
 
 import { AdminHome } from '../pages/AdminHome'
 import { AdminVerification } from '../pages/AdminVerification'
@@ -48,7 +48,8 @@ export function AppRoutes() {
         <Route path="/org" element={<OrganiserHomePage />} />
         <Route path="/org/analytics" element={<OrganiserAnalytics />} />
         <Route path="/org/events" element={<YourEventsPage />} />
-        <Route path="/org/events/:eventId/edit" element={<OrganiserEventEditPage />} />
+        <Route path="/org/events/new" element={<EventFormPage />} />
+        <Route path="/org/events/:eventId/edit" element={<EventFormPage />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminHome />} />
