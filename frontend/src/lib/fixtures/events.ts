@@ -121,7 +121,7 @@ export const eventsFixture: Events[] = [
     age_limit: null,
     banner_url: 'https://picsum.photos/seed/event6/800/400',
     pfp_url: 'https://picsum.photos/seed/event6icon/100',
-    status: 'ACTIVE',
+    status: 'PENDING_MODERATION',
     created_at: '2026-05-01T10:00:00Z',
     updated_at: '2026-05-01T10:00:00Z',
     terms_url: 'https://example.com/terms/event6',
