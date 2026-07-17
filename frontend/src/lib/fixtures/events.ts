@@ -3,7 +3,7 @@ import type { Events } from '../../types/events'
 export const eventsFixture: Events[] = [
   {
     id: 1,
-    organiser_id: [3],
+    organiser_id: [3, 4],
     title: 'Summer Beats Festival',
     description: 'An open-air music festival featuring local and touring DJs.',
     imp_info: [
