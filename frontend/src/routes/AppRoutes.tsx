@@ -11,7 +11,7 @@ import { NotificationsPage } from '../pages/NotificationsPage'
 import Login from '../pages/Login'
 import Signup from '../pages/Signup'
 
-import { OrganiserHome } from '../pages/OrganiserHome'
+import { OrganiserHomePage } from '../pages/org/OrganiserHomePage'
 import { OrganiserAnalytics } from '../pages/OrganiserAnalytics'
 import { OrganiserEvents } from '../pages/OrganiserEvents'
 
@@ -44,7 +44,7 @@ export function AppRoutes() {
         <Route path="/user/onboarding/step2" element={<OnboardingStep2 />} />
 
         {/* Organiser Routes */}
-        <Route path="/org" element={<OrganiserHome />} />
+        <Route path="/org" element={<OrganiserHomePage />} />
         <Route path="/org/analytics" element={<OrganiserAnalytics />} />
         <Route path="/org/events" element={<OrganiserEvents />} />
 

@@ -25,7 +25,7 @@ export function AuthenticatedShell() {
     pathname.startsWith('/organiser/')
 
   if (!user && !isPublicRoute) {
-    return <Navigate to="/auth/login" replace state={{ from: location }} />
+    return <Navigate to="/auth/login" replace />
   }
 
   // Guard for /org/* routes

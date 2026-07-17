@@ -1,13 +1,32 @@
 import React, { useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context'
+import type { UserRole } from '../types/users'
+
+function homePathForRole(role: UserRole): string {
+  switch (role) {
+    case 'ORGANISER':
+      return '/org'
+    case 'ADMIN':
+      return '/admin'
+    case 'ATTENDEE':
+    default:
+      return '/'
+  }
+}
 
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const from = location.state?.from?.pathname || '/'
+  // After logout, users should land on their role-based home rather than
+  // the URL they were on previously. If the referrer was the login page
+  // itself (or no referrer), send them to their role home.
+  const referrerIsLogin = location.state?.from?.pathname?.startsWith('/auth/')
+  const from = referrerIsLogin || !location.state?.from?.pathname
+    ? null
+    : location.state.from.pathname
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,8 +40,9 @@ export default function Login() {
     setError('')
 
     try {
-      await login(email, password)
-      navigate(from, { replace: true })
+      const user = await login(email, password)
+      const destination = from ?? homePathForRole(user.role)
+      navigate(destination, { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
