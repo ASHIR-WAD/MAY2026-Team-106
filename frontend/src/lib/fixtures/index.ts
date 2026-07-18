@@ -1,4 +1,5 @@
 import { eventsFixture } from './events'
+import type { EventStatus } from '../../types/events'
 import { usersFixture } from './users'
 import { interestTagsFixture } from './interestTags'
 import { userInterestTagsFixture } from './userInterestTags'

@@ -68,7 +68,6 @@ function lastPublishedLabel(updated_at: string | null | undefined): string {
 
 export function EventFormPage() {
   const { eventId } = useParams<{ eventId: string }>()
-  const isEdit = Boolean(eventId)
   const navigate = useNavigate()
   const { user } = useAuth()
 
@@ -190,7 +189,7 @@ export function EventFormPage() {
           : startTimeDefault)
 
       const basePayload: Omit<Events, 'id' | 'created_at' | 'updated_at' | 'status'> = {
-        organiser_id: [user.user_id],
+        organiser_id: [user!.user_id],
         title: form.title,
         description: form.description || null,
         imp_info: form.imp_info.filter((s) => s.trim().length > 0),
