@@ -14,10 +14,10 @@ export function ProfileUpdatePage() {
 
   const tabs: { id: TabId; label: string }[] = isOrganiser
     ? [
-        { id: 'personal', label: 'Personal Info' },
-        { id: 'profile', label: 'Profile' },
-        { id: 'verification', label: 'Verification Status' },
-      ]
+      { id: 'personal', label: 'Personal Info' },
+      { id: 'profile', label: 'Profile' },
+      { id: 'verification', label: 'Verification Status' },
+    ]
     : [{ id: 'personal', label: 'Personal Info' }]
 
   const [activeTab, setActiveTab] = useState<TabId>('personal')
@@ -44,11 +44,10 @@ export function ProfileUpdatePage() {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
-                activeTab === tab.id
+              className={`flex-1 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${activeTab === tab.id
                   ? 'bg-accent text-white shadow-sm'
                   : 'text-text-secondary hover:bg-surface-alt'
-              }`}
+                }`}
             >
               {tab.label}
             </button>
@@ -73,11 +72,10 @@ function Banner({ type, message }: { type: 'success' | 'error'; message: string 
   const isSuccess = type === 'success'
   return (
     <div
-      className={`p-4 rounded-xl border text-sm font-semibold flex items-center gap-2 animate-in fade-in duration-200 ${
-        isSuccess
+      className={`p-4 rounded-xl border text-sm font-semibold flex items-center gap-2 animate-in fade-in duration-200 ${isSuccess
           ? 'bg-success/10 border-success/30 text-success'
           : 'bg-danger/10 border-danger/30 text-danger'
-      }`}
+        }`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -108,12 +106,25 @@ interface TabProps {
 }
 
 function PersonalInfoTab({ user, updateProfile }: TabProps) {
+  const [name, setName] = useState(user.name || '')
   const [phone, setPhone] = useState(user.phone || '')
+  const [dob, setDob] = useState(user.dob || '')
+  const [description, setDescription] = useState(user.description || '')
+  const [pfpUrl, setPfpUrl] = useState(user.pfp_url || '')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  const avatars = [
+    'https://picsum.photos/seed/avatar1/200',
+    'https://picsum.photos/seed/avatar2/200',
+    'https://picsum.photos/seed/avatar3/200',
+    'https://picsum.photos/seed/avatar4/200',
+    'https://picsum.photos/seed/avatar5/200',
+    'https://picsum.photos/seed/avatar6/200',
+  ]
 
   const validatePhone = (phoneStr: string) => {
     if (!phoneStr) return true
@@ -126,6 +137,12 @@ function PersonalInfoTab({ user, updateProfile }: TabProps) {
     setIsLoading(true)
     setSuccessMsg('')
     setErrorMsg('')
+
+    if (!name.trim()) {
+      setErrorMsg('Name is required.')
+      setIsLoading(false)
+      return
+    }
 
     if (!validatePhone(phone)) {
       setErrorMsg('Please enter a valid phone number (minimum 10 digits, numbers only).')
@@ -147,12 +164,16 @@ function PersonalInfoTab({ user, updateProfile }: TabProps) {
 
     try {
       updateProfile({
+        name: name.trim(),
         phone: phone || null,
+        dob: dob || null,
+        description: description.trim() || null,
+        pfp_url: pfpUrl || null,
         ...(password ? { password_hash: password } : {}),
       })
       setPassword('')
       setConfirmPassword('')
-      setSuccessMsg('Personal info updated successfully!')
+      setSuccessMsg('Profile updated successfully!')
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch {
       // Mock update profile shouldn't fail
@@ -163,11 +184,88 @@ function PersonalInfoTab({ user, updateProfile }: TabProps) {
 
   return (
     <div className="border border-border bg-surface rounded-2xl shadow-xl overflow-hidden p-6 sm:p-8">
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
         {successMsg && <Banner type="success" message={successMsg} />}
         {errorMsg && <Banner type="error" message={errorMsg} />}
 
+        {/* Profile Picture Section */}
+        <div className="flex flex-col sm:flex-row items-center gap-5 pb-6 border-b border-border">
+          <img
+            src={pfpUrl || 'https://picsum.photos/seed/default/200'}
+            alt={name}
+            className="w-20 h-20 rounded-full object-cover border-2 border-accent shadow-md"
+          />
+          <div className="space-y-2 text-center sm:text-left flex-1">
+            <h3 className="text-lg font-bold text-text-primary">{name || 'Your Profile'}</h3>
+            <p className="text-xs text-text-secondary">{user.email}</p>
+            <div className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent uppercase tracking-wider">
+              {user.role}
+            </div>
+          </div>
+        </div>
+
+        {/* Avatar Picker */}
+        <div className="space-y-3">
+          <label className="block text-xs font-bold text-text-secondary uppercase">
+            Profile Picture
+          </label>
+          <div className="flex flex-wrap gap-3">
+            {avatars.map((url, idx) => (
+              <button
+                key={url}
+                type="button"
+                onClick={() => setPfpUrl(url)}
+                className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all transform hover:scale-105 ${
+                  pfpUrl === url ? 'border-accent ring-2 ring-accent/30' : 'border-border'
+                }`}
+              >
+                <img src={url} alt={`Preset ${idx + 1}`} className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+          <input
+            type="url"
+            placeholder="Or enter a custom profile picture URL..."
+            className="w-full rounded-lg border border-border bg-surface-alt px-4 py-2 text-text-primary outline-none focus:ring-2 focus:ring-accent text-xs"
+            value={pfpUrl}
+            onChange={(e) => setPfpUrl(e.target.value)}
+          />
+        </div>
+
+        {/* Personal Details */}
+        <div className="space-y-1">
+          <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Personal Details</h3>
+          <p className="text-xs text-text-secondary">Update your name, contact, and personal information</p>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
+              Full Name
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Your full name"
+              className="w-full rounded-lg border border-border bg-surface-alt px-4 py-2.5 text-text-primary outline-none focus:ring-2 focus:ring-accent text-sm"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              disabled
+              className="w-full rounded-lg border border-border bg-surface-alt/50 px-4 py-2.5 text-text-secondary outline-none text-sm cursor-not-allowed"
+              value={user.email}
+            />
+            <p className="text-[10px] text-text-secondary mt-1">Email cannot be changed</p>
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
               Phone Number
@@ -180,8 +278,42 @@ function PersonalInfoTab({ user, updateProfile }: TabProps) {
               onChange={(e) => setPhone(e.target.value)}
             />
           </div>
-          <div className="hidden sm:block" />
 
+          <div>
+            <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              className="w-full rounded-lg border border-border bg-surface-alt px-4 py-2.5 text-text-primary outline-none focus:ring-2 focus:ring-accent text-sm"
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Bio / Description */}
+        <div>
+          <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
+            Bio
+          </label>
+          <textarea
+            rows={3}
+            placeholder="Tell us a bit about yourself..."
+            className="w-full rounded-lg border border-border bg-surface-alt px-4 py-2.5 text-text-primary outline-none focus:ring-2 focus:ring-accent text-sm resize-none"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <p className="text-[10px] text-text-secondary mt-1">{description.length}/300 characters</p>
+        </div>
+
+        {/* Security Section */}
+        <div className="space-y-1 pt-2 border-t border-border/80">
+          <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider pt-4">Security</h3>
+          <p className="text-xs text-text-secondary">Update your password</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="block text-xs font-bold text-text-secondary uppercase mb-1">
               New Password
@@ -307,9 +439,8 @@ function ProfileTab({ user, updateProfile }: TabProps) {
                   key={url}
                   type="button"
                   onClick={() => setPfpUrl(url)}
-                  className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all transform hover:scale-105 ${
-                    pfpUrl === url ? 'border-accent ring-2 ring-accent/30' : 'border-border'
-                  }`}
+                  className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all transform hover:scale-105 ${pfpUrl === url ? 'border-accent ring-2 ring-accent/30' : 'border-border'
+                    }`}
                 >
                   <img src={url} alt={`Preset ${idx + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -349,9 +480,8 @@ function VerificationStatusTab({ user }: { user: Users }) {
       <div className="border border-border bg-surface rounded-2xl shadow-sm p-6 sm:p-8">
         <p className="text-xs font-bold text-text-secondary uppercase mb-2">Account Status</p>
         <div
-          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider ${
-            isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
-          }`}
+          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider ${isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'
+            }`}
         >
           {isActive ? '● Active' : '● Suspended'}
         </div>

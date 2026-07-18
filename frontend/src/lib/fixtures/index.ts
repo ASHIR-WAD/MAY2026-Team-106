@@ -1,4 +1,5 @@
 import { eventsFixture } from './events'
+import type { EventStatus } from '../../types/events'
 import { usersFixture } from './users'
 import { interestTagsFixture } from './interestTags'
 import { userInterestTagsFixture } from './userInterestTags'
@@ -56,7 +57,7 @@ export const mockPostRoutes: Record<string, (body: unknown) => unknown> = {
       age_limit: (payload.age_limit as number | null | undefined) ?? null,
       banner_url: (payload.banner_url as string | null | undefined) ?? null,
       pfp_url: (payload.pfp_url as string | null | undefined) ?? null,
-      status: (payload.status as string | undefined) ?? 'PENDING_MODERATION',
+      status: (payload.status as EventStatus | undefined) ?? 'PENDING_MODERATION',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       terms_url: (payload.terms_url as string | null | undefined) ?? null,
