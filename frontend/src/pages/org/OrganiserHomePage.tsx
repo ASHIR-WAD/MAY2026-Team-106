@@ -18,7 +18,11 @@ export function OrganiserHomePage() {
   const { user } = useAuth()
   const [search, setSearch] = useState('')
 
-  // Events this organiser owns, with start_time in the future.
+  // Events this organiser owns, ACTIVE only, with start_time in the
+  // future. Drafts (PENDING_MODERATION) belong on the Your Events
+  // page, not the organiser home dashboard. eventsFixture.length is
+  // included in the dep list so newly-pushed events trigger a re-render
+  // (the array reference itself never changes since we mutate in place).
   const myUpcoming = useMemo(() => {
     if (!user) return []
     const now = Date.now()
@@ -26,6 +30,7 @@ export function OrganiserHomePage() {
       .filter(
         (event) =>
           event.organiser_id.includes(user.user_id) &&
+          event.status === 'ACTIVE' &&
           new Date(event.start_time).getTime() > now,
       )
       .filter((event) =>
@@ -38,7 +43,8 @@ export function OrganiserHomePage() {
         (a, b) =>
           new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
       )
-  }, [user, search])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, search, eventsFixture.length])
 
   // Top performers: same event set, ranked by total revenue from
   // SUCCESS orders, top 3-5.
@@ -48,6 +54,7 @@ export function OrganiserHomePage() {
     const myEvents = eventsFixture.filter(
       (event) =>
         event.organiser_id.includes(user.user_id) &&
+        event.status === 'ACTIVE' &&
         new Date(event.start_time).getTime() > now,
     )
     const revenueByEvent = new Map<number, number>()
@@ -67,7 +74,8 @@ export function OrganiserHomePage() {
       .slice(0, 5)
       .filter((row) => row.revenue > 0)
     return ranked
-  }, [user])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, eventsFixture.length])
 
   if (!user) {
     return (
