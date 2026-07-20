@@ -13,6 +13,9 @@ import { eventReviewsFixture } from './eventReviews'
 import { notificationsFixture } from './notifications'
 import { notificationRecipientsFixture } from './notificationRecipients'
 import { platformModerationLogsFixture } from './platformModerationLogs'
+import type { Orders } from '../../types/orders'
+import type { OrderItems } from '../../types/order_items'
+import type { EventReviews } from '../../types/event_reviews'
 
 /** In-memory GET path → fixture data (Module 3 stand-in). */
 export const mockGetRoutes: Record<string, unknown> = {
@@ -134,7 +137,74 @@ export const mockPostRoutes: Record<string, (body: unknown) => unknown> = {
     // catch block in useBookmark doesn't roll the UI back.
     return { ok: true, ...(typeof body === 'object' && body !== null ? body : {}) }
   },
+  '/orders': (body) => {
+  const payload = (typeof body === 'object' && body !== null ? body : {}) as Partial<Orders>
+  const newOrder: Orders = {
+    id: ordersFixture.length + 1,
+    attendee_id: payload.attendee_id!,
+    event_id: payload.event_id!,
+    ticket_type_ids: null,
+    total_amount: payload.total_amount ?? 0,
+    payment_status: payload.payment_status ?? 'PENDING',
+    payment_gateway_ref: null,
+    created_at: new Date().toISOString(),
+    access_code: payload.access_code ?? `GTH-ORD-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+  }
+  ordersFixture.push(newOrder)
+  return newOrder
+},
+
+'/order-items': (body) => {
+  const payload = (typeof body === 'object' && body !== null ? body : {}) as Partial<OrderItems>
+  const newItem: OrderItems = {
+    id: orderItemsFixture.length + 1,
+    order_id: payload.order_id!,
+    ticket_type_id: payload.ticket_type_id!,
+    quantity: payload.quantity ?? 0,
+    unit_price: payload.unit_price ?? 0,
+    subtotal: payload.subtotal ?? 0,
+  }
+  orderItemsFixture.push(newItem)
+  return newItem
+},
+
+'/orders/update-status': (body) => {
+  const { orderId, payment_status } = body as { orderId: number; payment_status: Orders['payment_status'] }
+  const order = ordersFixture.find((o) => o.id === orderId)
+  if (!order) throw new Error('Order not found')
+  order.payment_status = payment_status
+  return order
+},
+
+'/ticket-types/update-sold': (body) => {
+  const { ticketTypeId, quantity } = body as { ticketTypeId: number; quantity: number }
+  const tier = ticketTypesFixture.find((t) => t.id === ticketTypeId)
+  if (!tier) throw new Error('Ticket type not found')
+  tier.quantity_sold += quantity
+  return tier
+},'/event-reviews': (body) => {
+  const payload = (typeof body === 'object' && body !== null ? body : {}) as Partial<EventReviews>
+  const existing = eventReviewsFixture.find((r) => r.order_id === payload.order_id)
+
+  if (existing) {
+    // one review per order — update in place rather than duplicate
+    existing.rating = payload.rating ?? existing.rating
+    existing.comment = payload.comment ?? existing.comment
+    return existing
+  }
+
+  const newReview: EventReviews = {
+    id: eventReviewsFixture.length + 1,
+    order_id: payload.order_id!,
+    rating: payload.rating ?? 0,
+    comment: payload.comment ?? null,
+    created_at: new Date().toISOString(),
+  }
+  eventReviewsFixture.push(newReview)
+  return newReview
+},
 }
+
 
 export {
   eventsFixture,
