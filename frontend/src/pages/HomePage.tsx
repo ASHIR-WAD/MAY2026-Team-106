@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context'
 import { eventsFixture } from '../lib/fixtures'
+import { EventCard } from '../components/event/EventCard'
 
 export function HomePage() {
   const { user, updateProfile } = useAuth()
@@ -12,11 +13,15 @@ export function HomePage() {
 
   // Filter events based on search query
   const filteredEvents = eventsFixture.filter((event) => {
-    if (!filterQuery) return event.status === 'ACTIVE'
+    if (event.status !== 'ACTIVE') return false
+    if (!filterQuery) return true
+    const q = filterQuery.trim().toLowerCase()
+    if (!q) return true
     return (
-      event.status === 'ACTIVE' &&
-      event.venue.toLowerCase().includes(filterQuery.toLowerCase())
-    );
+      event.title.toLowerCase().includes(q) ||
+      event.venue.toLowerCase().includes(q) ||
+      (event.description ?? "").toLowerCase().includes(q)
+    )
   })
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -171,105 +176,23 @@ export function HomePage() {
             {filteredEvents.map((event) => {
               const isBookmarked = user?.bookmarks?.includes(event.id)
               return (
-                <div
+                <EventCard
                   key={event.id}
-                  className="group rounded-2xl border border-border bg-surface overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
-                >
-                  {/* Banner Image */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-surface-alt">
-                    <img
-                      src={event.banner_url || 'https://picsum.photos/seed/event/800/400'}
-                      alt={event.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-
-                    {/* Bookmark Toggle Icon */}
-                    <button
-                      onClick={() => toggleBookmark(event.id)}
-                      type="button"
-                      className="absolute top-3 right-3 p-2 rounded-full bg-surface/80 backdrop-blur-md border border-border text-text-secondary hover:text-accent shadow-sm transition-colors"
-                      title={isBookmarked ? 'Remove Bookmark' : 'Bookmark Event'}
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill={isBookmarked ? 'currentColor' : 'none'}
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className={`w-4 h-4 ${isBookmarked ? 'text-accent' : ''}`}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Body Content */}
-                  <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-bold text-text-primary group-hover:text-accent transition-colors leading-snug">
-                        {event.title}
-                      </h3>
-                      <p className="text-xs text-text-secondary line-clamp-2">
-                        {event.description}
-                      </p>
-                    </div>
-
-                    {/* Metadata Card Footer */}
-                    <div className="pt-4 border-t border-border/50 flex flex-col space-y-2 text-xs text-text-secondary">
-                      <div className="flex items-center gap-1.5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-4 h-4 shrink-0 text-text-secondary/70"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
-                          />
-                        </svg>
-                        <span className="truncate">{event.venue}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          strokeWidth={1.5}
-                          stroke="currentColor"
-                          className="w-4 h-4 shrink-0 text-text-secondary/70"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
-                          />
-                        </svg>
-                        <span>
-                          {new Date(event.start_time).toLocaleDateString(undefined, {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  id={event.id}
+                  title={event.title}
+                  bannerUrl={event.banner_url}
+                  dateString={new Date(event.start_time).toLocaleDateString(undefined, {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                  locationString={event.venue}
+                  isBookmarked={isBookmarked}
+                  onBookmarkToggle={() => toggleBookmark(event.id)}
+                  onNavigate={(id) => navigate(`/events/${id}`)}
+                />
               )
             })}
           </div>
