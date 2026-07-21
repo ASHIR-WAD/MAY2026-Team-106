@@ -24,6 +24,19 @@ export function OnboardingStep2() {
     'https://picsum.photos/seed/avatar4/200',
   ]
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const dataUrl = reader.result
+      if (typeof dataUrl === 'string') {
+        setPfpUrl(dataUrl)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
@@ -115,14 +128,37 @@ export function OnboardingStep2() {
                 alt="Profile Preview"
                 className="w-16 h-16 rounded-full object-cover border-2 border-accent"
               />
-              <div className="flex-1">
+              <div className="flex-1 space-y-2">
                 <input
                   type="url"
                   placeholder="Or paste profile image URL"
                   className="w-full rounded-md border border-border bg-surface-alt px-4 py-2 text-text-primary outline-none focus:ring-2 focus:ring-accent text-xs"
-                  value={pfpUrl}
+                  value={pfpUrl.startsWith('data:') ? '' : pfpUrl}
                   onChange={(e) => setPfpUrl(e.target.value)}
                 />
+                <label className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border bg-surface-alt text-xs font-semibold text-text-primary cursor-pointer hover:bg-surface transition-colors">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.8}
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                    />
+                  </svg>
+                  Upload from device
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileUpload}
+                  />
+                </label>
               </div>
             </div>
 

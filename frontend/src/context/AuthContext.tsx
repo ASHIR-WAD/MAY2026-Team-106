@@ -4,6 +4,7 @@ import type { Users } from '../types/users'
 import { apiGet, apiPost } from '../lib/api'
 import { AuthContext } from './authContextValue'
 import type { AuthContextValue, SignupInput } from './authContextValue'
+import { usersFixture } from '../lib/fixtures/users'
 
 const STORAGE_USER_KEY = 'gatherly.auth.user'
 const STORAGE_TOKEN_KEY = 'gatherly.auth.token'
@@ -161,6 +162,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser((prev) => {
       if (!prev) return null
       const updated = { ...prev, ...updates }
+      // Keep the in-memory fixture in sync so a future login (which reads
+      // from the fixture) sees the same name, pfp, etc.
+      const idx = usersFixture.findIndex((u) => u.user_id === prev.user_id)
+      if (idx !== -1) {
+        usersFixture[idx] = { ...usersFixture[idx], ...updates }
+      }
       persistSession(updated, token)
       return updated
     })

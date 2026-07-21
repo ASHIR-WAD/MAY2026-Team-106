@@ -180,6 +180,10 @@ export function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event) => {
               const isBookmarked = user?.bookmarks?.includes(event.id)
+              const primaryOrganiserId = event.organiser_id[0]
+              const primaryOrganiser = primaryOrganiserId
+                ? usersFixture.find((u) => u.user_id === primaryOrganiserId)
+                : undefined
               return (
                 <EventCard
                   key={event.id}
@@ -197,6 +201,10 @@ export function HomePage() {
                   isBookmarked={isBookmarked}
                   onBookmarkToggle={() => toggleBookmark(event.id)}
                   onNavigate={(id) => navigate(`/event/${id}`)}
+                  organiserId={primaryOrganiserId}
+                  organiserName={primaryOrganiser?.name}
+                  organiserPfpUrl={primaryOrganiser?.pfp_url ?? null}
+                  onOrganiserClick={(orgId) => navigate(`/organiser/${orgId}`)}
                 />
               )
             })}

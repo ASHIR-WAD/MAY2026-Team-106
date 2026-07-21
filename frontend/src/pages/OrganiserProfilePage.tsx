@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom'
 import { apiGet } from '../lib/api'
 import { StarRating } from '../components/ui/StarRating'
 import { Button } from '../components/ui/Button'
+import { useAuth } from '../context'
+import { userFollowsFixture } from '../lib/fixtures'
 import type { Users } from '../types/users'
 import type { Events } from '../types/events'
 import type { Orders } from '../types/orders'
@@ -13,13 +15,8 @@ const GALLERY_DISPLAY_CAP = 12
 
 export function OrganiserProfilePage() {
   const { organiserId } = useParams<{ organiserId: string }>()
+  const { user: currentUser } = useAuth()
   const numericOrganiserId = organiserId ? Number(organiserId) : NaN
-
-  // TODO: swap this dummy state for the real useFollow(numericOrganiserId) hook
-  // once backend/follow persistence (user_follows) is wired up.
-  const [isFollowing, setIsFollowing] = React.useState(false)
-  const isFollowLoading = false
-  const toggleFollow = () => setIsFollowing((prev) => !prev)
 
   const [organiser, setOrganiser] = React.useState<Users | null>(null)
   const [organiserEvents, setOrganiserEvents] = React.useState<Events[]>([])
@@ -27,6 +24,42 @@ export function OrganiserProfilePage() {
   const [reviewCount, setReviewCount] = React.useState(0)
   const [galleryImages, setGalleryImages] = React.useState<MediaGallery[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
+  const [isFollowLoading, setIsFollowLoading] = React.useState(false)
+  // Bump on every follow toggle so the derived `isFollowing` re-evaluates —
+  // the fixture is a module-level array, so React won't notice mutations
+  // unless we tell it to re-render.
+  const [followTick, setFollowTick] = React.useState(0)
+
+  // Read follow state from the shared fixture so it stays in sync with the
+  // Favourites page. Re-derives on user change, route change, or follow tick.
+  const isFollowing = React.useMemo(() => {
+    if (!currentUser) return false
+    return userFollowsFixture.some(
+      (row) => row.follower_id === currentUser.user_id && row.following_id === numericOrganiserId,
+    )
+  }, [currentUser, numericOrganiserId, followTick])
+
+  const toggleFollow = () => {
+    if (!currentUser) return
+    if (Number.isNaN(numericOrganiserId)) return
+
+    setIsFollowLoading(true)
+    const existingIndex = userFollowsFixture.findIndex(
+      (row) => row.follower_id === currentUser.user_id && row.following_id === numericOrganiserId,
+    )
+
+    if (existingIndex !== -1) {
+      userFollowsFixture.splice(existingIndex, 1)
+    } else {
+      userFollowsFixture.push({
+        follower_id: currentUser.user_id,
+        following_id: numericOrganiserId,
+        followed_at: new Date().toISOString(),
+      })
+    }
+    setFollowTick((t) => t + 1)
+    setIsFollowLoading(false)
+  }
 
   React.useEffect(() => {
     let cancelled = false

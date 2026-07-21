@@ -20,13 +20,11 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // After logout, users should land on their role-based home rather than
-  // the URL they were on previously. If the referrer was the login page
-  // itself (or no referrer), send them to their role home.
-  const referrerIsLogin = location.state?.from?.pathname?.startsWith('/auth/')
-  const from = referrerIsLogin || !location.state?.from?.pathname
-    ? null
-    : location.state.from.pathname
+  // After a fresh login, always send the user to their role-based home.
+  // We intentionally ignore any "from" state here — stale or otherwise —
+  // so a sign-out → sign-in (potentially as a different user) cycle never
+  // resumes the previous session's page.
+  const from: string | null = null
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

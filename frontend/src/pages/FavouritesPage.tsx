@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context'
 import { userFollowsFixture, usersFixture, eventsFixture } from '../lib/fixtures'
@@ -19,8 +19,15 @@ export function FavouritesPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const { isBookmarked, toggleBookmark } = useBookmark()
+  // Bump on focus/mount so toggles from the OrganiserProfilePage (which
+  // mutates the module-level fixture) are reflected on this page.
+  const [followTick, setFollowTick] = useState(0)
 
-  // Section 1: Organisers you follow — from user_follows (unchanged)
+  useEffect(() => {
+    setFollowTick((t) => t + 1)
+  }, [])
+
+  // Section 1: Organisers you follow — from user_follows
   const followedOrganisers = useMemo(() => {
     if (!user) return []
     const followingIds = userFollowsFixture
@@ -29,7 +36,8 @@ export function FavouritesPage() {
     return usersFixture.filter(
       (u) => followingIds.includes(u.user_id) && u.role === 'ORGANISER',
     )
-  }, [user])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, followTick])
 
   // Section 2: Bookmarked events — pulled from currentUser.bookmarks array
   const bookmarkedEvents = useMemo(() => {

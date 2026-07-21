@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context'
 
 export function AvatarMenu() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -105,6 +106,9 @@ export function AvatarMenu() {
               onClick={() => {
                 setIsOpen(false)
                 logout()
+                // Clear all navigation state so the next login lands on the
+                // role-based home, not the page we were just on.
+                navigate('/auth/login', { replace: true, state: null })
               }}
               type="button"
               className="flex w-full items-center px-4 py-2.5 text-sm text-danger hover:bg-surface-alt transition-colors duration-150 text-left font-medium"
