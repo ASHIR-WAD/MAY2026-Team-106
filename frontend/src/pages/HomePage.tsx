@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context'
-import { eventsFixture } from '../lib/fixtures'
+import { eventsFixture, usersFixture } from '../lib/fixtures'
 import { EventCard } from '../components/event/EventCard'
 
 export function HomePage() {
@@ -17,10 +17,15 @@ export function HomePage() {
     if (!filterQuery) return true
     const q = filterQuery.trim().toLowerCase()
     if (!q) return true
+    const organiserNames = event.organiser_id
+      .map((id) => usersFixture.find((u) => u.user_id === id)?.name ?? '')
+      .join(' ')
+      .toLowerCase()
     return (
       event.title.toLowerCase().includes(q) ||
       event.venue.toLowerCase().includes(q) ||
-      (event.description ?? "").toLowerCase().includes(q)
+      (event.description ?? '').toLowerCase().includes(q) ||
+      organiserNames.includes(q)
     )
   })
 
@@ -86,7 +91,7 @@ export function HomePage() {
               </span>
               <input
                 type="text"
-                placeholder="Search city, venue or location (e.g. Gurugram)..."
+                placeholder="Search event, city, venue or organiser (e.g. Gurugram)..."
                 className="w-full bg-transparent border-none outline-none px-3 text-sm text-text-primary placeholder:text-text-secondary"
                 value={searchLocation}
                 onChange={(e) => setSearchLocation(e.target.value)}
