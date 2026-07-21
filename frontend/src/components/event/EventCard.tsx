@@ -10,6 +10,10 @@ export interface EventCardProps {
   isBookmarked?: boolean
   onBookmarkToggle?: () => void
   onNavigate?: (id: number) => void // ◄— Enforced database primitive type
+  organiserName?: string
+  organiserPfpUrl?: string | null
+  onOrganiserClick?: (organiserId: number) => void
+  organiserId?: number
 }
 
 export function EventCard({
@@ -21,8 +25,13 @@ export function EventCard({
   isBookmarked = false,
   onBookmarkToggle,
   onNavigate,
+  organiserName,
+  organiserPfpUrl,
+  onOrganiserClick,
+  organiserId,
 }: EventCardProps) {
   const [imageFailed, setImageFailed] = React.useState(false)
+  const [pfpFailed, setPfpFailed] = React.useState(false)
 
   const handleCardClick = () => {
     onNavigate?.(id)
@@ -32,6 +41,22 @@ export function EventCard({
     e.stopPropagation()
     onBookmarkToggle?.()
   }
+
+  const handleOrganiserClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (organiserId !== undefined) {
+      onOrganiserClick?.(organiserId)
+    }
+  }
+
+  const organiserInitials = React.useMemo(() => {
+    if (!organiserName) return '?'
+    const parts = organiserName.trim().split(/\s+/)
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+    }
+    return parts[0].substring(0, 2).toUpperCase()
+  }, [organiserName])
 
   return (
     <div
@@ -78,10 +103,38 @@ export function EventCard({
             {dateString}
           </p>
         </div>
-        
+
         <p className="text-text-secondary/80 text-sm truncate flex items-center gap-1.5">
           <span className="text-xs opacity-60">📍</span> {locationString}
         </p>
+
+        {organiserName && organiserId !== undefined && (
+          <button
+            type="button"
+            onClick={handleOrganiserClick}
+            className="flex items-center gap-2 mt-1 group/org text-left"
+            title={`View ${organiserName}'s profile`}
+          >
+            <span className="relative w-7 h-7 rounded-full overflow-hidden bg-accent/10 border border-border flex items-center justify-center flex-shrink-0 group-hover/org:ring-2 group-hover/org:ring-accent/40 transition-all">
+              {organiserPfpUrl && !pfpFailed ? (
+                <img
+                  src={organiserPfpUrl}
+                  alt={organiserName}
+                  onError={() => setPfpFailed(true)}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-[10px] font-bold text-accent font-mono">
+                  {organiserInitials}
+                </span>
+              )}
+            </span>
+            <span className="text-xs text-text-secondary truncate group-hover/org:text-accent transition-colors">
+              <span className="opacity-70">by </span>
+              <span className="font-semibold text-text-primary">{organiserName}</span>
+            </span>
+          </button>
+        )}
       </div>
     </div>
   )

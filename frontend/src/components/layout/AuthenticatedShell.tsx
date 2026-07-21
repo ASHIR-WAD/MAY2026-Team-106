@@ -19,28 +19,50 @@ export function AuthenticatedShell() {
 
   const { pathname } = location
 
-  const isPublicRoute =
-    pathname === '/' ||
-    pathname.startsWith('/event/') ||
-    pathname.startsWith('/organiser/')
+  // Public routes: ONLY the homepage.
+  const isPublicRoute = pathname === '/'
 
   if (!user && !isPublicRoute) {
-    return <Navigate to="/auth/login" replace />
+    return <Navigate to="/auth/login" replace state={{ from: location }} />
   }
 
-  // Guard for /org/* routes
-  if (pathname.startsWith('/org')) {
-    if (!user || user.role !== 'ORGANISER') {
+  // Guard for /org/* routes — only ORGANISER (and ADMIN for management).
+  // Use a word boundary so /organiser/* is not caught here.
+  if (pathname === '/org' || pathname.startsWith('/org/')) {
+    if (!user || (user.role !== 'ORGANISER' && user.role !== 'ADMIN')) {
       return <Navigate to="/" replace />
     }
   }
 
-  // Guard for /admin/* routes
+  // Guard for /admin/* routes — only ADMIN
   if (pathname.startsWith('/admin')) {
     if (!user || user.role !== 'ADMIN') {
       return <Navigate to="/" replace />
     }
   }
+
+  // Guard for attendee-only /user/* and booking/notification routes
+  const attendeeOnlyPaths = [
+    '/user/bookings',
+    '/user/favourites',
+    '/user/update',
+    '/user/onboarding',
+  ]
+  if (user && attendeeOnlyPaths.some((p) => pathname.startsWith(p))) {
+    if (user.role === 'ORGANISER') return <Navigate to="/org" replace />
+    if (user.role === 'ADMIN') return <Navigate to="/admin" replace />
+  }
+
+  // Guard booking + confirmation routes — only ATTENDEE (and ADMIN)
+  if (
+    user &&
+    ((pathname.startsWith('/event/') && pathname.endsWith('/book')) ||
+      pathname.startsWith('/ticket/'))
+  ) {
+    if (user.role === 'ORGANISER') return <Navigate to="/org" replace />
+  }
+
+  // Notifications: any logged-in user is allowed.
 
   // Redirect role-specific home pages if landing on '/'
   if (user && pathname === '/') {
