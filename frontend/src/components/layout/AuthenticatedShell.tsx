@@ -30,8 +30,9 @@ export function AuthenticatedShell() {
     return <Navigate to="/auth/login" replace state={{ from: location }} />
   }
 
-  // Guard for /org/* routes — only ORGANISER (and ADMIN for management)
-  if (pathname.startsWith('/org')) {
+  // Guard for /org/* routes — only ORGANISER (and ADMIN for management).
+  // Use a word boundary so /organiser/* is not caught here.
+  if (pathname === '/org' || pathname.startsWith('/org/')) {
     if (!user || (user.role !== 'ORGANISER' && user.role !== 'ADMIN')) {
       return <Navigate to="/" replace />
     }
@@ -59,7 +60,7 @@ export function AuthenticatedShell() {
   // Guard booking + confirmation routes — only ATTENDEE (and ADMIN)
   if (
     user &&
-    (pathname.startsWith('/event/') && pathname.endsWith('/book') ||
+    ((pathname.startsWith('/event/') && pathname.endsWith('/book')) ||
       pathname.startsWith('/ticket/'))
   ) {
     if (user.role === 'ORGANISER') return <Navigate to="/org" replace />
