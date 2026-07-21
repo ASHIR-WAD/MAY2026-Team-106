@@ -191,7 +191,7 @@ export function HomePage() {
                   locationString={event.venue}
                   isBookmarked={isBookmarked}
                   onBookmarkToggle={() => toggleBookmark(event.id)}
-                  onNavigate={(id) => navigate(`/events/${id}`)}
+                  onNavigate={(id) => navigate(`/event/${id}`)}
                 />
               )
             })}
