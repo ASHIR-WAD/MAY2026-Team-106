@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useLocation, useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context'
 import type { UserRole } from '../types/users'
 
@@ -18,7 +18,6 @@ function homePathForRole(role: UserRole): string {
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
 
   // After a fresh login, always send the user to their role-based home.
   // We intentionally ignore any "from" state here — stale or otherwise —
