@@ -19,12 +19,8 @@ export function AuthenticatedShell() {
 
   const { pathname } = location
 
-  // Public routes: homepage, event detail (no children), organiser profile (no children).
-  // /event/:id/book is intentionally NOT public — that requires auth.
-  const eventDetailMatch = pathname.match(/^\/event\/([^/]+)$/)
-  const organiserMatch = pathname.match(/^\/organiser\/([^/]+)$/)
-  const isPublicRoute =
-    pathname === '/' || eventDetailMatch !== null || organiserMatch !== null
+  // Public routes: ONLY the homepage.
+  const isPublicRoute = pathname === '/'
 
   if (!user && !isPublicRoute) {
     return <Navigate to="/auth/login" replace state={{ from: location }} />
