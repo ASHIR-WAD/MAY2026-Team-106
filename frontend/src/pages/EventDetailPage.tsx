@@ -144,7 +144,13 @@ export function EventDetailPage() {
         <Button
           variant="primary"
           disabled={isCancelled}
-          onClick={() => navigate(`/event/${event.id}/book`)}
+          onClick={() => {
+            if (!user) {
+              navigate('/auth/login')
+              return
+            }
+            navigate(`/event/${event.id}/book`)
+          }}
         >
           {isCancelled ? 'Booking Closed' : 'Book Tickets'}
         </Button>
