@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '../context'
 import type { Users } from '../types/users'
 
@@ -6,21 +7,47 @@ import type { Users } from '../types/users'
 // differently — the fields relied on below are: name, phone, description,
 // pfp_url, status, docs, role, email.
 
-type TabId = 'personal' | 'profile' | 'verification'
+type TabId = 'personal' | 'profile' | 'verification' | 'moderation'
 
 export function ProfileUpdatePage() {
   const { user, updateProfile } = useAuth()
+  const location = useLocation()
   const isOrganiser = user?.role === 'ORGANISER'
+  const isAdmin = user?.role === 'ADMIN'
 
-  const tabs: { id: TabId; label: string }[] = isOrganiser
-    ? [
-      { id: 'personal', label: 'Personal Info' },
-      { id: 'profile', label: 'Profile' },
-      { id: 'verification', label: 'Verification Status' },
-    ]
-    : [{ id: 'personal', label: 'Personal Info' }]
+  const requestedTab = new URLSearchParams(location.search).get('tab')
+  const defaultTab: TabId = requestedTab === 'moderation' && isAdmin
+    ? 'moderation'
+    : requestedTab === 'profile' && isOrganiser
+      ? 'profile'
+      : requestedTab === 'verification' && isOrganiser
+        ? 'verification'
+        : 'personal'
 
-  const [activeTab, setActiveTab] = useState<TabId>('personal')
+  const tabs: { id: TabId; label: string }[] = [
+    { id: 'personal', label: 'Personal Info' },
+    ...(isOrganiser
+      ? [
+          { id: 'profile' as const, label: 'Profile' },
+          { id: 'verification' as const, label: 'Verification Status' },
+        ]
+      : []),
+    ...(isAdmin ? [{ id: 'moderation' as const, label: 'Moderation Settings' }] : []),
+  ]
+
+  const [activeTab, setActiveTab] = useState<TabId>(defaultTab)
+
+  useEffect(() => {
+    const nextTab: TabId = requestedTab === 'moderation' && isAdmin
+      ? 'moderation'
+      : requestedTab === 'profile' && isOrganiser
+        ? 'profile'
+        : requestedTab === 'verification' && isOrganiser
+          ? 'verification'
+          : 'personal'
+
+    setActiveTab(nextTab)
+  }, [requestedTab, isAdmin, isOrganiser])
 
   if (!user) return null
 
@@ -63,6 +90,9 @@ export function ProfileUpdatePage() {
       )}
       {activeTab === 'verification' && isOrganiser && (
         <VerificationStatusTab user={user} />
+      )}
+      {activeTab === 'moderation' && isAdmin && (
+        <ModerationSettingsTab user={user} />
       )}
     </div>
   )
@@ -468,6 +498,119 @@ function ProfileTab({ user, updateProfile }: TabProps) {
           </button>
         </div>
       </form>
+    </div>
+  )
+}
+
+function ModerationSettingsTab({ user }: { user: Users }) {
+  const [autoApprove, setAutoApprove] = useState(() => {
+    if (typeof window === 'undefined') return true
+    try {
+      const stored = window.localStorage.getItem('gatherly.admin.moderation')
+      if (!stored) return true
+      return JSON.parse(stored).autoApprove ?? true
+    } catch {
+      return true
+    }
+  })
+  const [notifyNewReports, setNotifyNewReports] = useState(() => {
+    if (typeof window === 'undefined') return true
+    try {
+      const stored = window.localStorage.getItem('gatherly.admin.moderation')
+      if (!stored) return true
+      return JSON.parse(stored).notifyNewReports ?? true
+    } catch {
+      return true
+    }
+  })
+  const [supportEmail, setSupportEmail] = useState(() => {
+    if (typeof window === 'undefined') return 'support@gatherly.app'
+    try {
+      const stored = window.localStorage.getItem('gatherly.admin.moderation')
+      if (!stored) return 'support@gatherly.app'
+      return JSON.parse(stored).supportEmail ?? 'support@gatherly.app'
+    } catch {
+      return 'support@gatherly.app'
+    }
+  })
+  const [successMsg, setSuccessMsg] = useState('')
+
+  const handleSave = () => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(
+        'gatherly.admin.moderation',
+        JSON.stringify({ autoApprove, notifyNewReports, supportEmail })
+      )
+    }
+    setSuccessMsg('Moderation settings saved locally.')
+    window.setTimeout(() => setSuccessMsg(''), 3000)
+  }
+
+  return (
+    <div className="border border-border bg-surface rounded-2xl shadow-xl overflow-hidden p-6 sm:p-8">
+      <div className="space-y-6">
+        {successMsg && <Banner type="success" message={successMsg} />}
+
+        <div className="space-y-2">
+          <h3 className="text-lg font-bold text-text-primary">Moderation Controls</h3>
+          <p className="text-sm text-text-secondary">
+            Manage the moderation preferences that shape how {user.name || 'this admin'} reviews platform activity.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface-alt/70 p-5">
+          <label className="flex items-start gap-3 rounded-2xl border border-border bg-surface px-4 py-4">
+            <input
+              type="checkbox"
+              checked={autoApprove}
+              onChange={(e) => setAutoApprove(e.target.checked)}
+              className="mt-1 h-5 w-5 rounded border-border bg-surface-alt text-accent focus:ring-accent"
+            />
+            <div>
+              <p className="font-semibold text-text-primary">Auto-approve organizer verifications</p>
+              <p className="text-sm text-text-secondary">Allow the AI workflow to approve trusted submissions automatically.</p>
+            </div>
+          </label>
+
+          <label className="mt-4 flex items-start gap-3 rounded-2xl border border-border bg-surface px-4 py-4">
+            <input
+              type="checkbox"
+              checked={notifyNewReports}
+              onChange={(e) => setNotifyNewReports(e.target.checked)}
+              className="mt-1 h-5 w-5 rounded border-border bg-surface-alt text-accent focus:ring-accent"
+            />
+            <div>
+              <p className="font-semibold text-text-primary">Notify on new reports</p>
+              <p className="text-sm text-text-secondary">Send an alert when a new moderation report is filed.</p>
+            </div>
+          </label>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface-alt/70 p-5 space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-text-secondary uppercase mb-1">Support email</label>
+            <input
+              type="email"
+              value={supportEmail}
+              onChange={(e) => setSupportEmail(e.target.value)}
+              className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-text-primary outline-none focus:ring-2 focus:ring-accent text-sm"
+            />
+          </div>
+          <div className="rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-text-secondary">
+            Changes are saved locally in this demo. In production, these values will be managed through backend settings.
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleSave}
+            className="px-6 py-2.5 text-sm font-semibold rounded-lg bg-accent text-white hover:bg-accent/90 transition-colors shadow-lg shadow-accent/25"
+          >
+            Save settings
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
