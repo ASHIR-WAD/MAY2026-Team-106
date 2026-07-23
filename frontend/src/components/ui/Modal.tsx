@@ -4,9 +4,10 @@ export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  contentClassName?: string;
 }
 
-export function Modal({ isOpen, onClose, children }: ModalProps) {
+export function Modal({ isOpen, onClose, children, contentClassName }: ModalProps) {
   const modalRef = React.useRef<HTMLDivElement>(null);
   const previousFocus = React.useRef<HTMLElement | null>(null);
 
@@ -62,7 +63,7 @@ export function Modal({ isOpen, onClose, children }: ModalProps) {
         tabIndex={-1}
         onKeyDown={handleKeyDown}
         onClick={(e) => e.stopPropagation()}
-        className="bg-surface border border-border rounded-lg shadow-2xl max-w-md w-full p-6 outline-none animate-scale-up"
+        className={`bg-surface border border-border rounded-lg shadow-2xl max-w-md w-full p-6 outline-none animate-scale-up ${contentClassName ?? ''}`.trim()}
       >
         {children}
       </div>

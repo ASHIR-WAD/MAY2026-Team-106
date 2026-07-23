@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context'
 
 export function AvatarMenu() {
@@ -33,6 +33,12 @@ export function AvatarMenu() {
   }, [isOpen])
 
   if (!user) return null
+
+  const handleEditProfile = () => {
+    setIsOpen(false)
+    const targetPath = user.role === 'ADMIN' ? '/user/update?tab=moderation' : '/user/update'
+    navigate(targetPath, { replace: true })
+  }
 
   const initials = user.name
     ? user.name
@@ -79,9 +85,9 @@ export function AvatarMenu() {
           </div>
           <div className="py-1 divide-y divide-border/50">
             {/* Edit Profile Link */}
-            <Link
-              to="/user/update"
-              onClick={() => setIsOpen(false)}
+            <button
+              onClick={handleEditProfile}
+              type="button"
               className="flex w-full items-center px-4 py-2.5 text-sm text-text-primary hover:bg-surface-alt transition-colors duration-150 text-left font-medium"
             >
               <svg
@@ -99,7 +105,7 @@ export function AvatarMenu() {
                 />
               </svg>
               Edit Profile
-            </Link>
+            </button>
 
             {/* Logout Button */}
             <button

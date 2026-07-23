@@ -1,5 +1,4 @@
 import { eventsFixture } from './events'
-import type { EventStatus } from '../../types/events'
 import { usersFixture } from './users'
 import { interestTagsFixture } from './interestTags'
 import { userInterestTagsFixture } from './userInterestTags'
@@ -16,6 +15,7 @@ import { platformModerationLogsFixture } from './platformModerationLogs'
 import type { Orders } from '../../types/orders'
 import type { OrderItems } from '../../types/order_items'
 import type { EventReviews } from '../../types/event_reviews'
+import { adminDashboardMetrics, adminEventModerationItems, adminOrganiserModerationItems, adminVerificationRequests, adminReports } from './adminMocks'
 
 /** In-memory GET path → fixture data (Module 3 stand-in). */
 export const mockGetRoutes: Record<string, unknown> = {
@@ -33,70 +33,19 @@ export const mockGetRoutes: Record<string, unknown> = {
   '/notifications': notificationsFixture,
   '/notification-recipients': notificationRecipientsFixture,
   '/platform-moderation-logs': platformModerationLogsFixture,
+  '/admin-dashboard-metrics': adminDashboardMetrics,
+  '/admin-event-moderation': adminEventModerationItems,
+  '/admin-organiser-moderation': adminOrganiserModerationItems,
+  '/admin-verification-requests': adminVerificationRequests,
+  '/admin-reports': adminReports,
 }
 
 /** In-memory POST path → fixture response factory. */
 export const mockPostRoutes: Record<string, (body: unknown) => unknown> = {
-  '/events': (body) => {
-    const payload =
-      typeof body === 'object' && body !== null
-        ? (body as Record<string, unknown>)
-        : {}
-    const created = {
-      id: eventsFixture.length + 1,
-      organiser_id: (payload.organiser_id as number[] | undefined) ?? [],
-      title: (payload.title as string | undefined) ?? '',
-      description: (payload.description as string | null | undefined) ?? null,
-      imp_info: (payload.imp_info as string[] | null | undefined) ?? null,
-      venue: (payload.venue as string | undefined) ?? '',
-      capacity_limit: (payload.capacity_limit as number | undefined) ?? 0,
-      registration_deadline:
-        (payload.registration_deadline as string | undefined) ??
-        new Date().toISOString(),
-      start_time:
-        (payload.start_time as string | undefined) ?? new Date().toISOString(),
-      end_time:
-        (payload.end_time as string | undefined) ?? new Date().toISOString(),
-      age_limit: (payload.age_limit as number | null | undefined) ?? null,
-      banner_url: (payload.banner_url as string | null | undefined) ?? null,
-      pfp_url: (payload.pfp_url as string | null | undefined) ?? null,
-      status: (payload.status as EventStatus | undefined) ?? 'PENDING_MODERATION',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      terms_url: (payload.terms_url as string | null | undefined) ?? null,
-    }
-    eventsFixture.push(created)
-    return created
-  },
-  '/ticket-types': (body) => {
-    const payload =
-      typeof body === 'object' && body !== null
-        ? (body as Record<string, unknown>)
-        : {}
-    const created = {
-      id: ticketTypesFixture.length + 1,
-      event_id: (payload.event_id as number | undefined) ?? 0,
-      name: (payload.name as string | undefined) ?? '',
-      price: (payload.price as number | undefined) ?? 0,
-      quantity_total: (payload.quantity_total as number | undefined) ?? 0,
-      quantity_sold: (payload.quantity_sold as number | undefined) ?? 0,
-    }
-    ticketTypesFixture.push(created)
-    return created
-  },
-  '/media-gallery': (body) => {
-    const payload =
-      typeof body === 'object' && body !== null
-        ? (body as Record<string, unknown>)
-        : {}
-    const created = {
-      id: mediaGalleryFixture.length + 1,
-      event_id: (payload.event_id as number | undefined) ?? 0,
-      image_url: (payload.image_url as string | undefined) ?? '',
-    }
-    mediaGalleryFixture.push(created)
-    return created
-  },
+  '/events': (body) => ({
+    id: eventsFixture.length + 1,
+    ...(typeof body === 'object' && body !== null ? body : {}),
+  }),
   '/users': (body) => {
     const payload =
       typeof body === 'object' && body !== null
@@ -221,30 +170,9 @@ export {
   notificationsFixture,
   notificationRecipientsFixture,
   platformModerationLogsFixture,
-}
-
-// Devtools inspection helper. In the browser console:
-//   __fixtures__.events            → all events (incl. ones you created)
-//   __fixtures__.tickets           → all ticket types
-//   __fixtures__.media             → all media gallery rows
-//   __fixtures__.users             → all users
-//   __fixtures__.<table>           → every other table listed above
-// Only attached in development to avoid leaking fixtures in prod bundles.
-if (import.meta.env.DEV && typeof window !== 'undefined') {
-  ;(window as unknown as { __fixtures__: Record<string, unknown> }).__fixtures__ = {
-    events: eventsFixture,
-    users: usersFixture,
-    interestTags: interestTagsFixture,
-    userInterestTags: userInterestTagsFixture,
-    userFollows: userFollowsFixture,
-    eventTags: eventTagsFixture,
-    media: mediaGalleryFixture,
-    tickets: ticketTypesFixture,
-    orders: ordersFixture,
-    orderItems: orderItemsFixture,
-    eventReviews: eventReviewsFixture,
-    notifications: notificationsFixture,
-    notificationRecipients: notificationRecipientsFixture,
-    platformModerationLogs: platformModerationLogsFixture,
-  }
+  adminDashboardMetrics,
+  adminEventModerationItems,
+  adminOrganiserModerationItems,
+  adminVerificationRequests,
+  adminReports,
 }

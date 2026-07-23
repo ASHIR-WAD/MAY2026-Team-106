@@ -18,7 +18,8 @@ import { YourEventsPage } from '../pages/org/YourEventsPage'
 import { EventFormPage } from '../pages/org/EventFormPage'
 
 import { AdminHome } from '../pages/AdminHome'
-import { AdminVerification } from '../pages/AdminVerification'
+import { AdminEventReviewPage } from '../pages/AdminEventReviewPage'
+import AdminVerification from '../pages/AdminVerification'
 import { AdminReports } from '../pages/AdminReports'
 
 import { OnboardingStep1 } from '../pages/OnboardingStep1'
@@ -55,6 +56,7 @@ export function AppRoutes() {
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminHome />} />
+        <Route path="/admin/events/:eventId/review" element={<AdminEventReviewPage />} />
         <Route path="/admin/verification" element={<AdminVerification />} />
         <Route path="/admin/reports" element={<AdminReports />} />
       </Route>

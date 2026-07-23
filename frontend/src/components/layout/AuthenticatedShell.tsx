@@ -45,7 +45,6 @@ export function AuthenticatedShell() {
   const attendeeOnlyPaths = [
     '/user/bookings',
     '/user/favourites',
-    '/user/update',
     '/user/onboarding',
   ]
   if (user && attendeeOnlyPaths.some((p) => pathname.startsWith(p))) {
@@ -53,6 +52,9 @@ export function AuthenticatedShell() {
     if (user.role === 'ADMIN') return <Navigate to="/admin" replace />
   }
 
+  if (user && pathname.startsWith('/user/update')) {
+    if (user.role === 'ORGANISER') return <Navigate to="/org" replace />
+  }
   // Guard booking + confirmation routes — only ATTENDEE (and ADMIN)
   if (
     user &&

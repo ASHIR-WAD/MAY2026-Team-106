@@ -10,12 +10,12 @@ export class ApiError extends Error {
   }
 }
 
-function isMockMode(): boolean {
-  return import.meta.env.VITE_USE_MOCKS === 'true'
+function apiBaseUrl(): string {
+  return import.meta.env.VITE_API_BASE_URL?.trim() ?? ''
 }
 
-function apiBaseUrl(): string {
-  return import.meta.env.VITE_API_BASE_URL ?? ''
+function isMockMode(): boolean {
+  return import.meta.env.VITE_USE_MOCKS === 'true' || apiBaseUrl().length === 0
 }
 
 /** Normalize path for mock lookup: ensure leading slash, drop trailing slash + query. */
@@ -30,9 +30,22 @@ function normalizePath(path: string): string {
   return withLeading
 }
 
+async function parseBody<T>(response: Response): Promise<T | undefined> {
+  const text = await response.text()
+  if (!text) {
+    return undefined
+  }
+
+  try {
+    return JSON.parse(text) as T
+  } catch {
+    throw new Error(`Expected JSON response, received: ${text.slice(0, 120)}`)
+  }
+}
+
 async function parseErrorMessage(response: Response): Promise<string> {
   try {
-    const data: unknown = await response.json()
+    const data = await parseBody<unknown>(response)
     if (
       typeof data === 'object' &&
       data !== null &&
@@ -86,7 +99,8 @@ async function realRequest<T>(path: string, init?: RequestInit): Promise<T> {
     return undefined as T
   }
 
-  return (await response.json()) as T
+  const body = await parseBody<T>(response)
+  return body as T
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
